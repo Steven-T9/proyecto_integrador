@@ -9,3 +9,12 @@ def validar_registro(registro):
     # TODO A-S10-08: definir reglas de unidad por tipo de sensor.
     # TODO A-S10-09: devolver todos los motivos encontrados, no solo el primero.
     raise NotImplementedError("Pendiente: implementación del rol A, semana 10")
+# --- Casos de prueba para validar_registro ---
+
+# 1. Registro válido
+valido = {"id": "1", "tipo": "temperatura", "valor": "25.5", "unidad": "°C"}
+print("Caso válido:", validar_registro(valido))
+
+# 2. Múltiples errores (campo faltante, tipo inválido, valor no numérico y unidad incorrecta)
+invalido = {"id": "", "tipo": "velocidad", "valor": "abc", "unidad": "m/s"}
+print("Caso con múltiples errores:", validar_registro(invalido))
