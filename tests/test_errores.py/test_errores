@@ -1,0 +1,31 @@
+import pytest
+from src.processing.procesamiento import procesar_registros
+
+def test_procesar_registro_invalido_no_rompe_lote():
+    """Verifica que un registro con formato incorrecto no detenga la ejecución y se registre en errores."""
+    registros = [
+        {"valor": 45, "tipo": "minutos"},
+        "esto_no_es_un_diccionario_valido", # Registro defectuoso intencional
+        {"valor": 10, "tipo": "dias"}
+    ]
+    
+    resultado = procesar_registros(registros)
+    
+    assert resultado["total_registros"] == 3
+    assert resultado["exitosos"] == 2
+    assert resultado["fallidos"] == 1
+    assert len(resultado["errores"]) == 1
+    assert resultado["errores"][0]["indice"] == 1
+
+def test_procesar_registro_campos_faltantes():
+    """Verifica que si faltan campos obligatorios, el sistema aísle el error correctamente."""
+    registros = [
+        {"valor": None, "tipo": "minutos"}, # Falta un valor válido
+    ]
+    
+    resultado = procesar_registros(registros)
+    
+    assert resultado["fallidos"] == 1
+    assert resultado["exitosos"] == 0
+    assert len(resultado["errores"]) == 1
+    

@@ -54,7 +54,7 @@ def crear_reporte_error(origen: str, identificador: str, mensaje: str, categoria
         "identificador": identificador,
         "categoria": categoria,
         "mensaje": str(mensaje)
-    }
+    } 
 from src.exceptions.errores import (
     DataLabError, 
     ErrorValidacion, 
