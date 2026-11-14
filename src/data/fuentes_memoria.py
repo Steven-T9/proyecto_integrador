@@ -1,145 +1,89 @@
-"""Rol C: adaptador de fuentes en memoria."""
-from src.data.sensores import obtener_registros
+"""Rol C: adaptador de fuentes en memoria y escenarios de prueba.
 
-def cargar_desde_memoria():
-    """Fuente de datos funcional desde la primera entrega."""
-    return obtener_registros()
+Una "fuente" es cualquier lugar del que salen registros. En memoria no hay
+archivos: los registros se construyen en Python. Sirven para la demostración y
+para probar los módulos de los roles A y B con casos controlados.
 
-def preparar_registros_prueba():
-    """Rol C: escenarios adicionales de entrada para pruebas de semana 10."""
-    # TODO C-S10-01: construir registros con espacios, mayúsculas y formatos diversos.
-    # TODO C-S10-02: construir casos incompletos y tipos no reconocidos.
-    # TODO C-S10-03: no alterar los 12 registros base.
-    raise NotImplementedError("Pendiente: implementación del rol C, semana 10")
-
-
-    """
-Rol C: Adaptador de fuentes en memoria.
-Proyecto DataLab - Semana 10
-Responsable de proveer los datos base y escenarios de prueba con anomalías
-para evaluar la normalización (Rol A) y la robustez (Rol B).
+Cada cambio de la revisión docente está marcado con "# REVISIÓN (ID)".
+El ID corresponde a la observación del informe revision/revision_semanas_10_12.html.
 """
-
-
-def cargar_desde_memoria():
-    """
-    Fuente de datos funcional desde la primera entrega.
-    Retorna los 12 registros limpios y base originales.
-    """
-    return obtener_registros()
-
-def preparar_registros_prueba():
-    """
-    Rol C: Escenarios adicionales de entrada para pruebas de semana 10.
-    
-    Introduce a propósito "trampas" y datos sucios (espacios, mayúsculas, 
-    formatos diversos, datos incompletos y tipos no reconocidos) para 
-    poner a prueba los módulos de Calidad (Rol A) y Robustez (Rol B).
-    """
-    # TODO C-S10-03: No alterar los 12 registros base originales.
-    # Usamos copy.deepcopy para garantizar que la fuente original no sufra modificaciones.
-    registros_base = obtener_registros()
-    registros_copia = copy.deepcopy(registros_base)
-    
-    # TODO C-S10-01 y C-S10-02: Escenarios de prueba con anomalías intencionales.
-    registros_prueba_extra = [
-        {
-            # Caso 1: Espacios sobrantes y mayúsculas (Prueba de normalización del Rol A)
-            "id": "   sens_013_espacios   ",
-            "valor": " 24.5 °C ",
-            "tipo": "TEMPERATURA",  # En mayúsculas a propósito
-            "unidad": "celsius",
-            "timestamp": "2026-11-05 09:00:00"
-        },
-        {
-            # Caso 2: Tipo de valor no numérico (Prueba de manejo de excepciones del Rol B)
-            "id": "SENS-014",
-            "valor": "VALOR_NO_NUMERICO",  
-            "tipo": "humedad",
-            "unidad": "%",
-            "timestamp": "2026-11-05 09:01:00"
-        },
-        {
-            # Caso 3: Registro incompleto (Faltan claves obligatorias como unidad y timestamp)
-            "id": "SENS-015",
-            "valor": 1013.25,
-            "tipo": "presion"
-        },
-        {
-            # Caso 4: Tipo de sensor desconocido y formato de fecha atípico
-            "id": "SENS-016",
-            "valor": 55.0,
-            "tipo": "TIPO_DESCONOCIDO_XYZ",
-            "unidad": "desconocida",
-            "timestamp": "ayer por la tarde"
-        }
-    ]
-    
-    # Retornamos la combinación de la copia intacta de los 12 base + las 4 pruebas sucias
-    return registros_copia + registros_prueba_extra
-
-
-
-import os
-
-# Creamos la estructura de carpetas interna en Colab
-os.makedirs("src/data", exist_ok=True)
-os.makedirs("tests", exist_ok=True)
-
-print("¡Estructura de carpetas creada con éxito!")
-
-def obtener_registros():
-    """Simula los 12 registros base originales de la primera entrega."""
-    return [
-        {"id": f"sens_{i:03d}", "valor": 20.0 + i, "tipo": "temperatura", "unidad": "celsius", "timestamp": "2026-11-05 08:00:00"}
-        for i in range(1, 13)
-    ]
-
-
-"""
-Rol C: Adaptador de fuentes en memoria.
-Proyecto DataLab - Semana 10
-"""
-
 import copy
+
 from src.data.sensores import obtener_registros
 
+# REVISIÓN (C-4): el archivo tenía TRES versiones de las mismas funciones y,
+# entre ellas, código de Google Colab:
+#     os.makedirs("src/data", exist_ok=True)
+#     os.makedirs("tests", exist_ok=True)
+#     print("¡Estructura de carpetas creada con éxito!")
+# Todo lo que está en el nivel superior de un módulo se ejecuta al importarlo,
+# así que cada import (Streamlit, consola, pruebas) creaba carpetas en el
+# directorio actual. También se redefinía obtener_registros() con otros datos
+# (sens_001...); solo funcionaba porque el último bloque volvía a importar la
+# original, es decir, el resultado dependía del ORDEN del código.
+# Nunca se redefinen funciones de otro módulo; para guardar versiones
+# anteriores está Git.
+
+
 def cargar_desde_memoria():
-    """Fuente de datos funcional desde la primera entrega."""
-    return obtener_registros()
+    """Fuente de datos funcional desde la primera entrega (12 registros base)."""
+    # REVISIÓN (C-4): se devuelve una copia profunda. Si alguien modifica la
+    # lista recibida, los datos base de sensores.py no cambian (C-S10-03).
+    return copy.deepcopy(obtener_registros())
+
 
 def preparar_registros_prueba():
-    """Rol C: escenarios adicionales de entrada para pruebas de semana 10."""
-    registros_base = obtener_registros()
-    registros_copia = copy.deepcopy(registros_base)
-    
-    registros_prueba_extra = [
-        {
-            "id": "   sens_013_espacios   ",
-            "valor": " 24.5 °C ",
-            "tipo": "TEMPERATURA",  
-            "unidad": "celsius",
-            "timestamp": "2026-11-05 09:00:00"
-        },
-        {
-            "id": "SENS-014",
-            "valor": "VALOR_NO_NUMERICO",  
-            "tipo": "humedad",
-            "unidad": "%",
-            "timestamp": "2026-11-05 09:01:00"
-        },
-        {
-            "id": "SENS-015",
-            "valor": "1013.25",
-            "tipo": "presion"
-        },
-        {
-            "id": "SENS-016",
-            "valor": "55.0",
-            "tipo": "TIPO_DESCONOCIDO_XYZ",
-            "unidad": "desconocida",
-            "timestamp": "ayer por la tarde"
-        }
+    """Semana 10: registros base + casos con formatos diversos.
+
+    Resultado esperado al procesarlos (para las pruebas del equipo):
+    - Los 12 registros base son válidos.
+    - T-ESP, H-COMA y P-TILDE son válidos tras la normalización.
+    - Los demás son inválidos y cada uno indica sus motivos.
+    """
+    # C-S10-03: no alterar los 12 registros base -> se trabaja sobre una copia.
+    registros = cargar_desde_memoria()
+
+    # C-S10-01: espacios, mayúsculas, tildes y formatos diversos.
+    # Se conservan los escenarios del equipo (espacios, mayúsculas, valor con
+    # unidad incluida, no numérico, incompleto, tipo desconocido).
+    # REVISIÓN (C-4): se agregan casos para comprobar las normalizaciones del
+    # Rol A (coma decimal, tilde en el tipo, unidad en mayúsculas).
+    registros += [
+        {"id": "  T-ESP  ", "tipo": "  TEMPERATURA ", "valor": " 24.5 ", "unidad": " celsius "},
+        {"id": "H-COMA", "tipo": "Humedad", "valor": "55,2", "unidad": "%"},
+        {"id": "P-TILDE", "tipo": "Presión", "valor": "1013.2", "unidad": "HPA"},
+        {"id": "T-UNIDAD-EN-VALOR", "tipo": "temperatura", "valor": "24.5 °C", "unidad": "°C"},
     ]
-    
-    return registros_copia + registros_prueba_extra
+
+    # C-S10-02: casos incompletos y tipos no reconocidos.
+    registros += [
+        {"id": "H-NO-NUM", "tipo": "humedad", "valor": "VALOR_NO_NUMERICO", "unidad": "%"},
+        {"id": "P-SIN-UNIDAD", "tipo": "presion", "valor": "1013.25"},
+        {"id": "X-TIPO", "tipo": "viento", "valor": "55.0", "unidad": "km/h"},
+        {"id": "", "tipo": "temperatura", "valor": None, "unidad": "°F"},
+    ]
+    return registros
+
+
+# REVISIÓN (C-7): función nueva. La semana 11 pide al Rol C "escenarios de
+# fuentes defectuosas" y no existían. No hay que confundirlos con los datos de
+# mala calidad de preparar_registros_prueba (los rechaza el Rol A): estos son
+# fallas del ORIGEN, que el Rol B debe registrar sin detener el lote.
+def preparar_escenarios_defectuosos():
+    """Semana 11: entradas defectuosas para probar la robustez del Rol B.
+
+    Ninguno de estos casos debe detener el lote: los válidos se procesan y los
+    defectuosos quedan como inválidos o como errores técnicos.
+    """
+    registros = cargar_desde_memoria()[:3]
+    registros += [
+        "esto no es un diccionario",                    # error: ESTRUCTURA
+        None,                                           # error: ESTRUCTURA
+        {"id": "T-TIMEOUT", "tipo": "temperatura", "valor": 21.0, "unidad": "°C",
+         "observacion_tecnica": "SIMULACION_TIMEOUT_SENSOR"},  # error: TIMEOUT_SENSOR
+        {"id": "T-BOOL", "tipo": "temperatura", "valor": True, "unidad": "°C"},  # inválido
+        {"id": "T-INF", "tipo": "temperatura", "valor": "inf", "unidad": "°C"},  # inválido
+        {"id": "T-999", "tipo": "temperatura", "valor": 999, "unidad": "°C"},    # inválido: fuera de rango
+        {},                                             # inválido: faltan todos los campos
+    ]
+    return registros
